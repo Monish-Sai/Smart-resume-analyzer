@@ -344,10 +344,10 @@ export default function DashboardPage() {
                 <div
                   key={index}
                   onClick={() => setExpandedItem(expandedItem === index ? null : index)}
-                  className={`group flex flex-col gap-3 p-6 rounded-2xl border cursor-pointer transition-all duration-300 ${expandedItem === index ? 'border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/50 shadow-md' : 'border-zinc-200/50 dark:border-zinc-800 bg-white dark:bg-zinc-900/50 hover:bg-zinc-50 dark:hover:bg-zinc-800/30'}`}
+                  className={`group flex flex-col gap-3 p-4 sm:p-6 rounded-2xl border cursor-pointer transition-all duration-300 ${expandedItem === index ? 'border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/50 shadow-md' : 'border-zinc-200/50 dark:border-zinc-800 bg-white dark:bg-zinc-900/50 hover:bg-zinc-50 dark:hover:bg-zinc-800/30'}`}
                 >
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 w-full">
-                    <div className="flex items-center gap-3">
+                    <div className="flex flex-wrap items-center gap-3">
                       {editingItemId === item.id ? (
                         <div className="flex flex-wrap items-center gap-2" onClick={(e) => e.stopPropagation()}>
                           <input 
@@ -365,7 +365,7 @@ export default function DashboardPage() {
                         </div>
                       ) : (
                         <div className="flex items-center gap-2">
-                          <span className="font-medium text-slate-800 dark:text-gray-200 group-hover:text-black dark:group-hover:text-white transition">
+                          <span className="font-semibold text-slate-800 dark:text-gray-200 group-hover:text-black dark:group-hover:text-white transition truncate max-w-[140px] xs:max-w-[200px] sm:max-w-none">
                             {item.custom_title || item.role}
                           </span>
                           <button 
@@ -388,8 +388,8 @@ export default function DashboardPage() {
                         </span>
                       )}
                     </div>
-                    <div className="flex items-center justify-between sm:justify-end gap-3 sm:gap-4 w-full sm:w-auto mt-2 sm:mt-0 pt-3 sm:pt-0 border-t sm:border-0 border-slate-200 dark:border-white/5">
-                      <div className="flex items-center gap-2 sm:gap-4">
+                    <div className="flex flex-wrap items-center justify-between sm:justify-end gap-3 sm:gap-4 w-full sm:w-auto mt-2 sm:mt-0 pt-3 sm:pt-0 border-t sm:border-0 border-slate-200 dark:border-white/5">
+                      <div className="flex flex-wrap items-center gap-2 sm:gap-4">
                         {/* Favorite Button */}
                         <button 
                           onClick={(e) => handleToggleFavorite(index, e)}
