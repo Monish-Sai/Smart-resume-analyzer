@@ -344,7 +344,7 @@ export default function DashboardPage() {
                 <div
                   key={index}
                   onClick={() => setExpandedItem(expandedItem === index ? null : index)}
-                  className={`flex flex-col gap-3 p-6 rounded-2xl border cursor-pointer transition-all duration-300 ${expandedItem === index ? 'border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/50 shadow-md' : 'border-zinc-200/50 dark:border-zinc-800 bg-white dark:bg-zinc-900/50 hover:bg-zinc-50 dark:hover:bg-zinc-800/30'}`}
+                  className={`group flex flex-col gap-3 p-6 rounded-2xl border cursor-pointer transition-all duration-300 ${expandedItem === index ? 'border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/50 shadow-md' : 'border-zinc-200/50 dark:border-zinc-800 bg-white dark:bg-zinc-900/50 hover:bg-zinc-50 dark:hover:bg-zinc-800/30'}`}
                 >
                   <div className="flex justify-between items-center w-full">
                     <div className="flex items-center gap-3">
