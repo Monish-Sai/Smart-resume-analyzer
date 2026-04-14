@@ -85,6 +85,7 @@ export default async function RootLayout({
           )}
 
           </ClerkProvider>
+          <Toaster position="top-center" richColors theme="system" />
         </ThemeProvider>
       </body>
     </html>
