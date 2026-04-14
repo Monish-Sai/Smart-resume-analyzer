@@ -1,0 +1,51 @@
+﻿
+> my-clerk-app@0.1.0 lint
+> eslint
+
+
+C:\Users\monis\ai-resume-analyzer\my-clerk-app\app\dashboard\page.tsx
+   36:23   warning  'error' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  359:101  error    Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+
+C:\Users\monis\ai-resume-analyzer\my-clerk-app\app\layout.tsx
+  5:8  warning  'Link' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\monis\ai-resume-analyzer\my-clerk-app\app\page.tsx
+    4:8    warning  'Link' is defined but never used                                 @typescript-eslint/no-unused-vars
+    9:10   warning  'FileText' is defined but never used                             @typescript-eslint/no-unused-vars
+    9:61   warning  'TrendingUp' is defined but never used                           @typescript-eslint/no-unused-vars
+    9:73   warning  'Presentation' is defined but never used                         @typescript-eslint/no-unused-vars
+    9:87   warning  'Briefcase' is defined but never used                            @typescript-eslint/no-unused-vars
+    9:123  warning  'XCircle' is defined but never used                              @typescript-eslint/no-unused-vars
+   78:50   error    Unexpected any. Specify a different type                         @typescript-eslint/no-explicit-any
+  187:16   error    'yPos' is never reassigned. Use 'const' instead                  prefer-const
+  235:124  error    `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`  react/no-unescaped-entities
+
+C:\Users\monis\ai-resume-analyzer\my-clerk-app\app\settings\page.tsx
+   4:8  warning  'Link' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           @typescript-eslint/no-unused-vars
+  19:3  warning  Unused eslint-disable directive (no problems were reported)
+  21:5  error    Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\Users\monis\ai-resume-analyzer\my-clerk-app\app\settings\page.tsx:21:5
+  19 |   // eslint-disable-next-line
+  20 |   useEffect(() => {
+> 21 |     setMounted(true);
+     |     ^^^^^^^^^^ Avoid calling setState() directly within an effect
+  22 |     // Only initialize pendingTheme once on mount to avoid overriding manual user previews
+  23 |     if (!pendingTheme && theme) setPendingTheme(theme);
+  24 |   }, [theme]);  react-hooks/set-state-in-effect
+  24:6  warning  React Hook useEffect has a missing dependency: 'pendingTheme'. Either include it or remove the dependency array                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            react-hooks/exhaustive-deps
+  53:7  warning  Unused eslint-disable directive (no problems were reported)
+
+C:\Users\monis\ai-resume-analyzer\my-clerk-app\app\trash\page.tsx
+  32:23  warning  'error' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+Γ£û 18 problems (5 errors, 13 warnings)
+  1 error and 2 warnings potentially fixable with the `--fix` option.
+
