@@ -217,8 +217,8 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="w-full flex-1 w-full max-w-6xl flex justify-center mx-auto">
-      <div className="w-full max-w-4xl flex flex-col pt-10 px-6 animate-fadeIn mx-auto">
+    <div className="w-full flex-1 max-w-6xl flex justify-center mx-auto">
+      <div className="w-full max-w-4xl flex flex-col pt-6 md:pt-10 px-4 md:px-6 animate-fadeIn mx-auto">
         {/* Back Button */}
         <div className="w-full mb-6 flex justify-start">
           <Link 
@@ -230,15 +230,15 @@ export default function DashboardPage() {
         </div>
 
         {/* Header */}
-        <div className="flex justify-between items-center mb-12 pb-6 transition-colors duration-300">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8 md:mb-12 pb-6 transition-colors duration-300">
           <div>
-            <h1 className="text-3xl font-semibold text-zinc-900 dark:text-zinc-100 tracking-tight">Dashboard Overview</h1>
-            <p className="text-zinc-500 dark:text-zinc-400 mt-1">Track your AI extraction performance</p>
+            <h1 className="text-2xl md:text-3xl font-semibold text-zinc-900 dark:text-zinc-100 tracking-tight">Dashboard Overview</h1>
+            <p className="text-zinc-500 dark:text-zinc-400 mt-1 text-sm md:text-base">Track your AI extraction performance</p>
           </div>
 
           <Link
             href="/"
-            className="bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 hover:scale-[1.02] hover:shadow-md transition-all px-6 py-2.5 rounded-xl font-medium cursor-pointer"
+            className="w-full sm:w-auto text-center bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 hover:scale-[1.02] hover:shadow-md transition-all px-6 py-2.5 rounded-xl font-medium cursor-pointer"
           >
             New Analysis
           </Link>
@@ -277,7 +277,7 @@ export default function DashboardPage() {
 
         {/* Temporal Recharts Sequence */}
         {history.length > 1 && (
-          <div className="w-full h-80 bg-white dark:bg-zinc-900 border border-zinc-200/50 dark:border-zinc-800/50 rounded-3xl p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.1)] mb-10 flex flex-col">
+          <div className="w-full h-auto bg-white dark:bg-zinc-900 border border-zinc-200/50 dark:border-zinc-800/50 rounded-3xl p-6 md:p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.1)] mb-10 flex flex-col">
             <h3 className="font-semibold text-lg text-zinc-800 dark:text-zinc-100 mb-6 tracking-tight">
               Analysis Progression Trend
             </h3>

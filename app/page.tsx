@@ -240,7 +240,7 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-white dark:bg-[#09090b] text-zinc-900 dark:text-zinc-100 flex flex-col items-center px-6 py-10 w-full relative animate-fadeIn transition-colors duration-300">
+    <div className="min-h-screen bg-white dark:bg-[#09090b] text-zinc-900 dark:text-zinc-100 flex flex-col items-center px-4 md:px-6 py-8 md:py-10 w-full relative animate-fadeIn transition-colors duration-300">
 
       {/* Unauthenticated Premium SaaS Landing Experience */}
       {!isSignedIn && (
@@ -257,7 +257,7 @@ export default function Home() {
               <span>The Next Generation ATS Engine</span>
             </div>
             
-            <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight text-slate-800 dark:text-white leading-tight">
+            <h1 className="text-4xl md:text-7xl font-extrabold tracking-tight text-slate-800 dark:text-white leading-tight">
               Land your dream job with <span className="bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 bg-clip-text text-transparent">Precision AI</span>
             </h1>
             
@@ -330,12 +330,12 @@ export default function Home() {
           </div>
 
           {/* Premium High-Tier Card */}
-          <motion.div layout className="w-full max-w-2xl bg-white dark:bg-zinc-900 border border-zinc-200/50 dark:border-zinc-800/50 rounded-3xl p-8 space-y-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.1)] transition-all duration-500 hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] dark:hover:border-zinc-700/50">
+          <motion.div layout className="w-full max-w-2xl bg-white dark:bg-zinc-900 border border-zinc-200/50 dark:border-zinc-800/50 rounded-3xl p-6 md:p-8 space-y-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.1)] transition-all duration-500 hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] dark:hover:border-zinc-700/50">
 
             {/* File Upload Dropzone */}
             <div 
               {...getRootProps()} 
-              className={`relative group p-10 rounded-2xl border-2 border-dashed transition-all duration-300 flex flex-col items-center justify-center cursor-pointer ${
+              className={`relative group p-6 md:p-10 rounded-2xl border-2 border-dashed transition-all duration-300 flex flex-col items-center justify-center cursor-pointer ${
                 isDragActive ? 'border-blue-500 bg-blue-50 dark:bg-blue-500/10' : 'border-zinc-300 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900 hover:border-blue-400 dark:hover:border-blue-500/50'
               }`}
             >
