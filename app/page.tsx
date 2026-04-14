@@ -85,6 +85,14 @@ export default function Home() {
     reader.readAsArrayBuffer(file);
   };
 
+  const parseChips = (text: string) => {
+    if (!text) return [];
+    return text
+      .split(/,|\n/)
+      .map(s => s.replace(/^[-*•]\s*/, '').trim())
+      .filter(s => s.length > 0 && s.toLowerCase() !== 'none');
+  };
+
   const handleAnalyze = async () => {
     if (!text) {
       toast.error("Please upload your Resume document first!");
@@ -455,20 +463,53 @@ export default function Home() {
                   {/* STRENGTHS */}
                   <div className="bg-white dark:bg-zinc-900 border border-zinc-200/50 dark:border-zinc-800/50 rounded-3xl p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.1)] relative overflow-hidden">
                     <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 rounded-full blur-3xl -mr-10 -mt-10"></div>
-                    <h3 className="text-emerald-600 dark:text-emerald-400 font-semibold mb-4 text-lg">Core Strengths</h3>
-                    <p className="text-zinc-600 dark:text-zinc-400 whitespace-pre-wrap leading-relaxed">
-                      {sections.strengths || "No matching data found."}
-                    </p>
+                    <h3 className="text-emerald-600 dark:text-emerald-400 font-semibold mb-4 text-lg flex items-center gap-2">
+                       <CheckCircle2 size={18} /> Skills Detected
+                    </h3>
+                    <div className="flex flex-wrap gap-2">
+                      {parseChips(sections.strengths).length > 0 ? (
+                         parseChips(sections.strengths).map((chip, idx) => (
+                           <motion.span 
+                             key={idx}
+                             initial={{ opacity: 0, scale: 0.9 }}
+                             animate={{ opacity: 1, scale: 1 }}
+                             transition={{ delay: idx * 0.05 }}
+                             className="px-3 py-1.5 bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-200/50 dark:border-emerald-500/20 rounded-lg text-sm font-medium shadow-sm hover:scale-105 transition-transform cursor-default"
+                           >
+                              {chip}
+                           </motion.span>
+                         ))
+                      ) : (
+                         <p className="text-zinc-500 dark:text-zinc-400 text-sm italic">No matching skills detected.</p>
+                      )}
+                    </div>
                   </div>
 
                   {/* MISSING SKILLS */}
                   <div className="bg-white dark:bg-zinc-900 border border-zinc-200/50 dark:border-zinc-800/50 rounded-3xl p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.1)] relative overflow-hidden">
                     <div className="absolute top-0 right-0 w-32 h-32 bg-red-500/5 rounded-full blur-3xl -mr-10 -mt-10"></div>
-                    <h3 className="text-red-600 dark:text-red-400 font-semibold mb-4 text-lg">Identified Skill Gaps</h3>
-                    <p className="text-zinc-600 dark:text-zinc-400 whitespace-pre-wrap leading-relaxed">
-                      {sections.missing || "No missing skills identified."}
-                    </p>
+                    <h3 className="text-red-600 dark:text-red-400 font-semibold mb-4 text-lg flex items-center gap-2">
+                       <Zap size={18} /> Missing Skills (Gaps)
+                    </h3>
+                    <div className="flex flex-wrap gap-2">
+                      {parseChips(sections.missing).length > 0 ? (
+                         parseChips(sections.missing).map((chip, idx) => (
+                           <motion.span 
+                             key={idx}
+                             initial={{ opacity: 0, scale: 0.9 }}
+                             animate={{ opacity: 1, scale: 1 }}
+                             transition={{ delay: idx * 0.05 }}
+                             className="px-3 py-1.5 bg-red-50 dark:bg-red-500/10 text-red-700 dark:text-red-400 border border-red-200/50 dark:border-red-500/20 rounded-lg text-sm font-medium shadow-sm hover:scale-105 transition-transform cursor-default"
+                           >
+                              {chip}
+                           </motion.span>
+                         ))
+                      ) : (
+                         <p className="text-zinc-500 dark:text-zinc-400 text-sm italic">No missing skills identified!</p>
+                      )}
+                    </div>
                   </div>
+
 
                   {/* IMPROVEMENTS */}
                   <div className="bg-white dark:bg-zinc-900 border border-zinc-200/50 dark:border-zinc-800/50 rounded-3xl p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.1)] relative overflow-hidden">

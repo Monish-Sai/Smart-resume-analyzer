@@ -18,8 +18,8 @@ You MUST calculate a unique and precise score based ONLY on exact keyword matche
 
 Provide exactly and ONLY this format:
 1. ${jobDescription ? 'Match Percentage' : 'ATS Score'}: [Calculate exact score 0-100]
-2. ${jobDescription ? 'Matched Skills & Strengths' : 'Strengths'} (short bullet points)
-3. Missing Skills & Keywords (short bullet points)
+2. ${jobDescription ? 'Matched Skills' : 'Strengths'} (Strictly provide a single comma-separated list of direct technical keywords. E.g., React, TypeScript, Python)
+3. Missing Skills (Strictly provide a single comma-separated list of direct technical keywords)
 4. Suggestions to improve match (short, simple, actionable points)
 
 Resume:
