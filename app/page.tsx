@@ -7,6 +7,7 @@ import { supabase } from "../utils/supabaseClient";
 import { motion, AnimatePresence } from "framer-motion";
 import { Target, Zap, ChevronRight, CheckCircle2, FileSearch, UploadCloud } from "lucide-react";
 import { useDropzone } from "react-dropzone";
+import { toast } from "sonner";
 
 export default function Home() {
   const { isSignedIn, userId } = useAuth();
@@ -85,8 +86,12 @@ export default function Home() {
   };
 
   const handleAnalyze = async () => {
-    if (!text || !role) {
-      setResult("Upload resume & enter role ❗");
+    if (!text) {
+      toast.error("Please upload your Resume document first!");
+      return;
+    }
+    if (!role) {
+      toast.error("Entering a Target Role (e.g., Software Engineer) is strictly required.");
       return;
     }
 
