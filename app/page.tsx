@@ -143,9 +143,22 @@ export default function Home() {
       const sections = output.split(/(?=\d\.\s)/); 
       
       sections.forEach((sec: string) => {
-        if (sec.startsWith("2.")) extractedStrengths = sec.replace(/^2\.\s*[^:]*:?\s*/, '').trim();
-        if (sec.startsWith("3.")) extractedMissing = sec.replace(/^3\.\s*[^:]*:?\s*/, '').trim();
-        if (sec.startsWith("4.")) extractedImprovements = sec.replace(/^4\.\s*[^:]*:?\s*/, '').trim();
+        if (sec.startsWith("2.")) {
+          extractedStrengths = sec.replace(/^2\.\s*/, '').replace(/^.*?(Skills|Strengths).*?[:\-]\s*/i, '').trim();
+          // Fallback if no colon was provided and it just started listing
+          if (extractedStrengths.toLowerCase().startsWith('matched') || extractedStrengths.toLowerCase().startsWith('strengths')) {
+              extractedStrengths = extractedStrengths.replace(/^(Matched Skills|Strengths)[\s\n]*/i, '');
+          }
+        }
+        if (sec.startsWith("3.")) {
+          extractedMissing = sec.replace(/^3\.\s*/, '').replace(/^.*?Missing.*?[:\-]\s*/i, '').trim();
+          if (extractedMissing.toLowerCase().startsWith('missing')) {
+              extractedMissing = extractedMissing.replace(/^Missing Skills[\s\n]*/i, '');
+          }
+        }
+        if (sec.startsWith("4.")) {
+          extractedImprovements = sec.replace(/^4\.\s*/, '').replace(/^.*?(Suggestions|Improvements).*?[:\-]\s*/i, '').trim();
+        }
       });
       
       // Fallback Legacy Splitter
