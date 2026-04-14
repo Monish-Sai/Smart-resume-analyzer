@@ -5,6 +5,7 @@ import { auth } from "@clerk/nextjs/server";
 import { ThemeProvider } from "../utils/ThemeProvider";
 import { Toaster } from "sonner";
 import { SidebarNav } from "./components/SidebarNav";
+import { MobileSidebar } from "./components/MobileSidebar";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -55,9 +56,10 @@ export default async function RootLayout({
 
           {/* SaaS Sidebar Layout (Logged In) */}
           {!!userId && (
-            <div className="flex flex-1 h-full overflow-hidden bg-white dark:bg-[#09090b] transition-colors duration-300">
+            <div className="flex flex-1 h-full overflow-hidden bg-white dark:bg-[#09090b] transition-colors duration-300 relative">
+              <MobileSidebar />
               {/* Floating Sidebar */}
-              <div className="w-[280px] bg-zinc-50/50 dark:bg-[#09090b] flex flex-col py-8 relative z-20 backdrop-blur-3xl transition-colors duration-300 border-r border-zinc-200/50 dark:border-zinc-800/50">
+              <div className="hidden lg:flex w-[280px] bg-zinc-50/50 dark:bg-[#09090b] flex-col py-8 relative z-20 backdrop-blur-3xl transition-colors duration-300 border-r border-zinc-200/50 dark:border-zinc-800/50">
                 <div className="px-6 mb-10">
                   <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 dark:from-blue-400 dark:via-purple-400 dark:to-pink-500 bg-clip-text text-transparent tracking-tight">Resume AI</h1>
                 </div>
@@ -77,7 +79,7 @@ export default async function RootLayout({
               </div>
 
               {/* Main Content Pane */}
-              <main className="flex-1 overflow-y-auto bg-white dark:bg-[#09090b] relative transition-colors duration-300 rounded-tl-3xl border-t border-l border-zinc-200/50 dark:border-zinc-800/50 shadow-[-10px_-10px_30px_rgba(0,0,0,0.02)] dark:shadow-[-10px_-10px_30px_rgba(0,0,0,0.2)]">
+              <main className="flex-1 overflow-y-auto pt-[70px] lg:pt-0 bg-white dark:bg-[#09090b] relative transition-colors duration-300 lg:rounded-tl-3xl border-t border-l border-zinc-200/50 dark:border-zinc-800/50 shadow-[-10px_-10px_30px_rgba(0,0,0,0.02)] dark:shadow-[-10px_-10px_30px_rgba(0,0,0,0.2)]">
                 <div className="absolute inset-0 pointer-events-none"></div>
                 {children}
               </main>
