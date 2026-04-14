@@ -10,11 +10,14 @@ export async function POST(req: Request) {
 
     const trimmedText = text.length > 10000 ? text.substring(0, 10000) : text;
     
-    const prompt = `Analyze this resume for the ${role} role. Please be extremely concise and use simple language.
-${jobDescription ? `\nAnalyze the resume against this specific Job Description:\n"${jobDescription}"\n` : ''}
+    const prompt = `You are a ruthless and strict ATS (Applicant Tracking System) software used by HR departments. 
+Critically analyze this resume for the ${role} role. 
+${jobDescription ? `Your task is to calculate a strict overlap against this Job Description:\n"${jobDescription}"\n` : ''}
 
-Give me only:
-1. ${jobDescription ? 'Match Percentage' : 'ATS Score'} (0-100)
+You MUST calculate a unique and precise score based ONLY on exact keyword matches, years of experience, and structural formatting. A generic, lazy, or repetitive score is unacceptable. Be extremely honest.
+
+Provide exactly and ONLY this format:
+1. ${jobDescription ? 'Match Percentage' : 'ATS Score'}: [Calculate exact score 0-100]
 2. ${jobDescription ? 'Matched Skills & Strengths' : 'Strengths'} (short bullet points)
 3. Missing Skills & Keywords (short bullet points)
 4. Suggestions to improve match (short, simple, actionable points)

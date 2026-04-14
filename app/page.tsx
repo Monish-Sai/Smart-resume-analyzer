@@ -106,16 +106,21 @@ export default function Home() {
       const output = data.result;
       setResult(output);
 
-      // 🔥 Extract ATS Score
+      // 🔥 Extract ATS Score Safely
       let parsedScore = 0;
-      const atsLine = output.split('\n').find((line: string) => line.toLowerCase().includes('score'));
+      const atsLine = output.split('\n').find((line: string) => line.toLowerCase().includes('score') || line.toLowerCase().includes('percentage'));
       if (atsLine) {
         const nums = atsLine.match(/\d+/g);
         if (nums) {
-          parsedScore = parseInt(nums[nums.length - 1], 10);
+          const validScores = nums.map((n: string) => parseInt(n, 10)).filter((n: number) => n >= 0 && n <= 100 && n !== 1);
+          if (validScores.length > 0) {
+            parsedScore = validScores[0];
+          } else {
+             parsedScore = parseInt(nums[0], 10);
+          }
         }
       }
-      setScore(parsedScore);
+      setScore(parsedScore > 100 ? 100 : parsedScore);
 
       // 🔥 Extract sections using dynamic Regex bindings guarding against prompt variations
       let extractedStrengths = "";
