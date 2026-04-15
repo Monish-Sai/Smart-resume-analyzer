@@ -6,6 +6,7 @@ import { ThemeProvider } from "../utils/ThemeProvider";
 import { Toaster } from "sonner";
 import { SidebarNav } from "./components/SidebarNav";
 import { MobileSidebar } from "./components/MobileSidebar";
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -90,6 +91,7 @@ export default async function RootLayout({
           </ClerkProvider>
           <Toaster position="top-center" richColors theme="system" />
         </ThemeProvider>
+        <Analytics />
       </body>
     </html>
   );
