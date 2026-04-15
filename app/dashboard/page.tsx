@@ -318,7 +318,7 @@ export default function DashboardPage() {
         )}
         
         {/* History Container */}
-        <div className="bg-white dark:bg-zinc-900 border border-zinc-200/50 dark:border-zinc-800/50 rounded-3xl p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.1)] flex-1 transition-colors duration-300 flex flex-col mb-10">
+        <div className="bg-white dark:bg-zinc-900 border border-zinc-200/50 dark:border-zinc-800/50 rounded-3xl p-4 sm:p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.1)] flex-1 transition-colors duration-300 flex flex-col mb-10">
           
           <div className="flex justify-between items-center mb-8 pb-4 border-b border-zinc-100 dark:border-zinc-800 transition-colors duration-300">
             <h3 className="font-semibold text-xl text-zinc-900 dark:text-zinc-100 tracking-tight">

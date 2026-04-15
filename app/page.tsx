@@ -43,7 +43,10 @@ export default function Home() {
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
-    accept: { 'application/pdf': ['.pdf'] },
+    accept: { 
+      'application/pdf': ['.pdf'],
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ['.docx']
+    },
     maxFiles: 1
   });
 
@@ -60,26 +63,40 @@ export default function Home() {
   ];
 
   const extractText = async (file: File) => {
-    // Dynamically import pdfjs only on the client side to prevent Next.js SSR crashes
-    const pdfjsLib = await import("pdfjs-dist");
-    pdfjsLib.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.mjs`;
-
     const reader = new FileReader();
 
     reader.onload = async () => {
-      const typedArray = new Uint8Array(reader.result as ArrayBuffer);
-      const pdf = await pdfjsLib.getDocument(typedArray).promise;
+      const arrayBuffer = reader.result as ArrayBuffer;
 
-      let fullText = "";
+      if (file.type === "application/pdf") {
+        // PDF Extraction
+        const pdfjsLib = await import("pdfjs-dist");
+        pdfjsLib.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.mjs`;
+        
+        const typedArray = new Uint8Array(arrayBuffer);
+        const pdf = await pdfjsLib.getDocument(typedArray).promise;
+        let fullText = "";
 
-      for (let i = 1; i <= pdf.numPages; i++) {
-        const page = await pdf.getPage(i);
-        const content = await page.getTextContent();
-        const strings = content.items.map((item) => ('str' in item ? (item as unknown as { str: string }).str : ""));
-        fullText += strings.join(" ") + " ";
+        for (let i = 1; i <= pdf.numPages; i++) {
+          const page = await pdf.getPage(i);
+          const content = await page.getTextContent();
+          const strings = content.items.map((item) => ('str' in item ? (item as unknown as { str: string }).str : ""));
+          fullText += strings.join(" ") + " ";
+        }
+        setText(fullText);
+      } else if (file.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" || file.name.endsWith(".docx")) {
+        // DOCX Extraction
+        try {
+          const mammoth = await import("mammoth");
+          const result = await mammoth.extractRawText({ arrayBuffer });
+          setText(result.value);
+        } catch (error) {
+          console.error("DOCX Error:", error);
+          toast.error("Failed to extract text from Word document.");
+        }
+      } else {
+        toast.error("Unsupported file type. Please upload a PDF or DOCX.");
       }
-
-      setText(fullText);
     };
 
     reader.readAsArrayBuffer(file);
