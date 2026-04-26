@@ -33,7 +33,7 @@ export default async function RootLayout({
 
   return (
     <html lang="en" suppressHydrationWarning className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
-      <body className="h-full overflow-hidden flex flex-col font-sans transition-colors duration-300 text-zinc-900 bg-white dark:text-zinc-100 dark:bg-[#09090b]">
+      <body className="min-h-screen flex flex-col font-sans transition-colors duration-300 text-zinc-900 bg-white dark:text-zinc-100 dark:bg-[#09090b]">
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
           <ClerkProvider>
           <Toaster position="bottom-right" toastOptions={{ className: 'dark:bg-zinc-900 dark:border-zinc-800 dark:text-zinc-100 bg-white border-zinc-200 text-zinc-900 rounded-2xl shadow-xl' }} />
