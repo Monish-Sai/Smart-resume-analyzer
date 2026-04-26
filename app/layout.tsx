@@ -32,7 +32,7 @@ export default async function RootLayout({
   const { userId } = await auth();
 
   return (
-    <html lang="en" suppressHydrationWarning className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
+    <html lang="en" suppressHydrationWarning className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
       <body className="min-h-screen flex flex-col font-sans transition-colors duration-300 text-zinc-900 bg-white dark:text-zinc-100 dark:bg-[#09090b]">
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
           <ClerkProvider>
@@ -56,7 +56,7 @@ export default async function RootLayout({
 
           {/* SaaS Sidebar Layout (Logged In) */}
           {!!userId && (
-            <div className="flex flex-col lg:flex-row flex-1 h-full overflow-hidden bg-white dark:bg-[#09090b] transition-colors duration-300">
+            <div className="flex flex-col lg:flex-row flex-1 h-screen overflow-hidden bg-white dark:bg-[#09090b] transition-colors duration-300">
               <MobileSidebar />
 
               {/* Floating Sidebar (Desktop) */}
