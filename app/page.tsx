@@ -37,6 +37,7 @@ export default function Home() {
     if (acceptedFiles.length > 0) {
       const selectedFile = acceptedFiles[0];
       setFile(selectedFile);
+      setText(""); // Clear previous text immediately
       extractText(selectedFile);
     }
   };
@@ -63,63 +64,55 @@ export default function Home() {
   ];
 
   const extractText = async (file: File) => {
-    const reader = new FileReader();
     const parsingToast = toast.loading("Extracting text from resume...");
+    
+    try {
+      const arrayBuffer = await file.arrayBuffer();
+      const isPdf = file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf");
+      const isDocx = file.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" || file.name.toLowerCase().endsWith(".docx");
 
-    reader.onload = async () => {
-      try {
-        const arrayBuffer = reader.result as ArrayBuffer;
-        const isPdf = file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf");
-        const isDocx = file.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" || file.name.toLowerCase().endsWith(".docx");
+      if (isPdf) {
+        // PDF Extraction
+        const pdfjsLib = await import("pdfjs-dist");
+        pdfjsLib.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.mjs`;
+        
+        const typedArray = new Uint8Array(arrayBuffer);
+        const pdf = await pdfjsLib.getDocument({ data: typedArray }).promise;
+        let fullText = "";
 
-        if (isPdf) {
-          // PDF Extraction
-          const pdfjsLib = await import("pdfjs-dist");
-          pdfjsLib.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.mjs`;
-          
-          const typedArray = new Uint8Array(arrayBuffer);
-          const pdf = await pdfjsLib.getDocument(typedArray).promise;
-          let fullText = "";
-
-          for (let i = 1; i <= pdf.numPages; i++) {
-            const page = await pdf.getPage(i);
-            const content = await page.getTextContent();
-            const strings = content.items.map((item) => ('str' in item ? (item as unknown as { str: string }).str : ""));
-            fullText += strings.join(" ") + " ";
-          }
-          
-          if (!fullText.trim()) {
-            throw new Error("No readable text found in PDF. It might be an image-based scan.");
-          }
-          
-          setText(fullText);
-          toast.success("Resume text extracted successfully!", { id: parsingToast });
-        } else if (isDocx) {
-          // DOCX Extraction
-          const mammoth = await import("mammoth");
-          const result = await mammoth.extractRawText({ arrayBuffer });
-          
-          if (!result.value.trim()) {
-            throw new Error("No readable text found in Word document.");
-          }
-          
-          setText(result.value);
-          toast.success("Resume text extracted successfully!", { id: parsingToast });
-        } else {
-          toast.error("Unsupported file type. Please upload a PDF or DOCX.", { id: parsingToast });
+        for (let i = 1; i <= pdf.numPages; i++) {
+          const page = await pdf.getPage(i);
+          const content = await page.getTextContent();
+          const strings = content.items.map((item) => ('str' in item ? (item as unknown as { str: string }).str : ""));
+          fullText += strings.join(" ") + " ";
         }
-      } catch (error: any) {
-        console.error("Extraction Error:", error);
-        toast.error(error.message || "Failed to extract text from file.", { id: parsingToast });
+        
+        if (!fullText.trim()) {
+          throw new Error("No readable text found in PDF. It might be an image-based scan.");
+        }
+        
+        setText(fullText);
+        toast.success("Resume text extracted successfully!", { id: parsingToast });
+      } else if (isDocx) {
+        // DOCX Extraction
+        const mammoth = await import("mammoth");
+        const result = await mammoth.extractRawText({ arrayBuffer });
+        
+        if (!result.value.trim()) {
+          throw new Error("No readable text found in Word document.");
+        }
+        
+        setText(result.value);
+        toast.success("Resume text extracted successfully!", { id: parsingToast });
+      } else {
+        toast.error("Unsupported file type. Please upload a PDF or DOCX.", { id: parsingToast });
       }
-    };
-
-    reader.onerror = () => {
-      toast.error("Failed to read file.", { id: parsingToast });
-    };
-
-    reader.readAsArrayBuffer(file);
+    } catch (error: any) {
+      console.error("Extraction Error:", error);
+      toast.error(error.message || "Failed to extract text from file.", { id: parsingToast });
+    }
   };
+
 
   const parseChips = (text: string) => {
     if (!text) return [];
@@ -443,6 +436,30 @@ export default function Home() {
                 className="w-full px-5 py-4 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200/50 dark:border-zinc-800 rounded-xl outline-none focus:ring-2 focus:ring-zinc-900 dark:focus:ring-white text-zinc-900 dark:text-zinc-100 transition-all duration-300 min-h-[120px] resize-y text-sm placeholder:text-zinc-400 dark:placeholder:text-zinc-600"
               />
             </div>
+
+            {/* Manual Text Fallback Toggle */}
+            <div className="flex items-center justify-between px-1">
+              <span className="text-xs text-zinc-500 dark:text-zinc-500">Problem extracting?</span>
+              <button 
+                onClick={() => setFile(null)} 
+                className="text-xs text-blue-500 hover:underline"
+              >
+                Clear & Paste Text Instead
+              </button>
+            </div>
+
+            {/* Resume Text Area (Manual Fallback) */}
+            {!file && (
+              <div className="relative">
+                <textarea
+                  placeholder="Paste your resume text here directly if extraction fails..."
+                  value={text}
+                  onChange={(e) => setText(e.target.value)}
+                  className="w-full px-5 py-4 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200/50 dark:border-zinc-800 rounded-xl outline-none focus:ring-2 focus:ring-zinc-900 dark:focus:ring-white text-zinc-900 dark:text-zinc-100 transition-all duration-300 min-h-[150px] resize-y text-sm placeholder:text-zinc-400 dark:placeholder:text-zinc-600"
+                />
+                <div className="absolute top-3 right-3 text-[10px] text-zinc-400 font-mono">MANUAL MODE</div>
+              </div>
+            )}
 
             {/* Button */}
             <button
