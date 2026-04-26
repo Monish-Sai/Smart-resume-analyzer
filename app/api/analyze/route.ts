@@ -10,19 +10,28 @@ export async function POST(req: Request) {
 
     const trimmedText = text.length > 10000 ? text.substring(0, 10000) : text;
     
-    const prompt = `You are a ruthless and strict ATS (Applicant Tracking System) software used by HR departments. 
-Critically analyze this resume for the ${role} role. 
-${jobDescription ? `Your task is to calculate a strict overlap against this Job Description:\n"${jobDescription}"\n` : ''}
+    const prompt = `You are an elite, senior-level Recruitment Engineer and ATS Logic Engine. 
+Your goal is to provide a hyper-realistic, data-driven analysis of the provided resume for the role of ${role}.
 
-You MUST calculate a unique and precise score based ONLY on exact keyword matches, years of experience, and structural formatting. A generic, lazy, or repetitive score is unacceptable. Be extremely honest.
+${jobDescription ? `### Target Job Description:\n"${jobDescription}"\n` : ''}
 
-Provide exactly and ONLY this format:
-1. ${jobDescription ? 'Match Percentage' : 'ATS Score'}: [Calculate exact score 0-100]
-2. ${jobDescription ? 'Matched Skills' : 'Strengths'} (Strictly provide a single comma-separated list of direct technical keywords. E.g., React, TypeScript, Python)
-3. Missing Skills (Strictly provide a single comma-separated list of direct technical keywords)
-4. Suggestions to improve match (short, simple, actionable points)
+### Scoring Rubric (Strictly follow this to calculate the final score):
+1. **Technical Hard Skills (50%)**: Match exactly against required keywords. Do not give credit for "similar" skills unless they are industry-standard synonyms.
+2. **Relevant Experience (30%)**: Analyze years of experience and seniority level. Is it a match for a ${role}?
+3. **Education & Structural Clarity (20%)**: Does the resume follow a professional hierarchy? Is it parsable?
 
-Resume:
+### Critical Instructions:
+- **Avoid "Safe" Rounding**: Do NOT provide scores ending in 0 or 5 (e.g., avoid 60, 65, 70). Provide precise, granular scores based on evidence (e.g., 63, 72, 58, 81).
+- **Ruthless Honesty**: If the resume is a poor match, score it below 40. If it is perfect, score it above 90.
+- **Data-Driven**: Every point in the score must be justifiable by the content.
+
+### Response Format (Strictly follow):
+1. ${jobDescription ? 'Match Percentage' : 'ATS Score'}: [Provide exact granular score 0-100]
+2. ${jobDescription ? 'Matched Skills' : 'Strengths'}: [A single comma-separated list of ONLY verified technical keywords found in the text]
+3. Missing Skills: [A single comma-separated list of skills missing that are vital for a ${role}]
+4. Suggestions: [3-4 actionable, high-impact bullet points for improvement]
+
+Resume Content:
 ${trimmedText}`;
 
     const controller = new AbortController();
