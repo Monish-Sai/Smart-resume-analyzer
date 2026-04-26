@@ -283,7 +283,8 @@ export default function DashboardPage() {
             </h3>
             <div className="w-full h-[250px] relative mt-2">
               <ResponsiveContainer width="99%" height={250}>
-                <LineChart data={[...history].reverse().map((h, i) => ({ name: `Analysis ${i + 1}`, date: new Date(h.created_at || h.date || "").toLocaleDateString(), score: h.score, role: h.role }))} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
+                {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+                <LineChart data={([...history].reverse().map((h, i) => ({ name: `Analysis ${i + 1}`, date: new Date(h.created_at || h.date || "").toLocaleDateString(), score: h.score, role: h.role })) as unknown) as any[]} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" strokeOpacity={0.1} />
                   <XAxis dataKey="name" stroke="#64748b" fontSize={12} tickLine={false} axisLine={false} />
                   <YAxis stroke="#64748b" fontSize={12} tickLine={false} axisLine={false} domain={[0, 100]} />

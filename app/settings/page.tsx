@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Link from "next/link";
 import { useAuth, SignOutButton } from "@clerk/nextjs";
 import { useTheme } from "next-themes";
 import { toast } from "sonner";
@@ -16,16 +15,14 @@ export default function SettingsPage() {
   const [pendingTheme, setPendingTheme] = useState<string | undefined>(undefined);
   const [isSaving, setIsSaving] = useState(false);
 
-  // eslint-disable-next-line
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true);
-  }, []);
-
-  // eslint-disable-next-line
-  useEffect(() => {
-    // Only initialize pendingTheme once on mount to avoid overriding manual user previews
-    if (mounted && !pendingTheme && theme) setPendingTheme(theme);
-  }, [theme, mounted, pendingTheme]);
+    if (theme) {
+       // eslint-disable-next-line react-hooks/set-state-in-effect
+       setPendingTheme(theme);
+    }
+  }, [theme]);
 
   // Handle Real-time Visual Theme Preview without saving globally
   useEffect(() => {
