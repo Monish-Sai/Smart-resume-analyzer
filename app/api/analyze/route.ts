@@ -10,34 +10,33 @@ export async function POST(req: Request) {
 
     const trimmedText = text.length > 10000 ? text.substring(0, 10000) : text;
     
-    const prompt = `You are a high-level Technical Hiring Manager and Senior Recruiter. 
-Your task is to conduct a forensic, data-driven analysis of this resume for the position of ${role}.
+    const prompt = `You are a world-class Technical Recruiter at a FAANG company. 
+Your goal is to provide a BRUTALLY HONEST and HIGHLY ACCURATE ATS score for this resume for the role of ${role}.
 
-${jobDescription ? `### Target Job Description Requirements:\n"${jobDescription}"\n` : ''}
+${jobDescription ? `### Job Description (Target): \n"${jobDescription}"\n` : ''}
 
-### Step-by-Step Scoring Protocol (Mental Calculation):
-1. **Initial Score: 0**
-2. **Technical Skills (Max 50 pts)**: Award points for every direct technical match. Deduct 5 points for every "critical" missing skill.
-3. **Professional Experience (Max 30 pts)**: Analyze relevance and seniority. Award points based on tenure and impact.
-4. **Formatting & Keywords (20 pts)**: Award points for clear hierarchy and parsable keywords.
+### Scoring Algorithm (Internal Calculation):
+1. **Base Score: 0**
+2. **Hard Skills (0-50 pts)**: Count direct keyword matches for ${role}. +5 per critical skill.
+3. **Experience (0-30 pts)**: +10 for Junior, +20 for Mid, +30 for Senior matching ${role}.
+4. **Impact/Formatting (0-20 pts)**: Award for measurable results (numbers, %) and readability.
 
-### Final Scoring Rules:
-- **Zero Generic Scores**: Do NOT use numbers ending in 0 or 5. 
-- **Unique Variance**: Each resume must have a unique score based on its specific contents. 
-- **Verification**: Ensure the 'Matched Skills' list ONLY contains words actually present in the text.
+### Response Requirements:
+- **No Rounding**: Use precise numbers like 67, 43, 81.
+- **Explain the Math**: You MUST include a "Score Breakdown" explaining exactly how you arrived at the number.
 
-### Output Format (Strictly Provide ONLY this):
-[Reasoning: A 1-sentence internal summary of the calculation logic]
-1. ${jobDescription ? 'Match Percentage' : 'ATS Score'}: [Provide exact granular score e.g. 64, 71, 42, 88]
-2. ${jobDescription ? 'Matched Skills' : 'Strengths'}: [Comma-separated list of keywords found in resume]
-3. Missing Skills: [Comma-separated list of missing vital keywords]
-4. Suggestions: [3-4 high-impact bullet points]
+### Output Format (Strictly follow):
+1. ${jobDescription ? 'Match Percentage' : 'ATS Score'}: [Score 0-100]
+2. Score Breakdown: [Brief explanation: e.g., Skills: 30/50, Exp: 20/30, Format: 15/20]
+3. ${jobDescription ? 'Matched Skills' : 'Strengths'}: [Comma list]
+4. Missing Skills: [Comma list]
+5. Suggestions: [3-4 actionable points]
 
 Resume Data:
 ${trimmedText}`;
 
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 30000);
+    const timeoutId = setTimeout(() => controller.abort(), 45000); // Increased timeout for 70B
 
     const apiKey = process.env.HUGGINGFACE_API_KEY;
 
@@ -53,9 +52,10 @@ ${trimmedText}`;
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        model: "meta-llama/Llama-3.1-8B-Instruct",
+        model: "meta-llama/Meta-Llama-3.1-70B-Instruct",
         messages: [{ role: "user", content: prompt }],
-        max_tokens: 1000
+        max_tokens: 1000,
+        temperature: 0.1
       }),
       signal: controller.signal
     });

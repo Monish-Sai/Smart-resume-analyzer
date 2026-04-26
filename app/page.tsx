@@ -20,6 +20,7 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [score, setScore] = useState<number | null>(null);
   const [sections, setSections] = useState({
+    breakdown: "",
     strengths: "",
     missing: "",
     improvements: ""
@@ -135,7 +136,7 @@ export default function Home() {
     setLoading(true);
     setResult("");
     setScore(null);
-    setSections({ strengths: "", missing: "", improvements: "" });
+    setSections({ breakdown: "", strengths: "", missing: "", improvements: "" });
 
     try {
       const res = await fetch("/api/analyze", {
@@ -165,28 +166,31 @@ export default function Home() {
       setScore(parsedScore > 100 ? 100 : parsedScore);
 
       // 🔥 Extract sections using dynamic Regex bindings guarding against prompt variations
+      let extractedBreakdown = "";
       let extractedStrengths = "";
       let extractedMissing = "";
       let extractedImprovements = "";
       
-      const sections = output.split(/(?=\d\.\s)/); 
+      const sectionsList = output.split(/(?=\d\.\s)/); 
       
-      sections.forEach((sec: string) => {
+      sectionsList.forEach((sec: string) => {
         if (sec.startsWith("2.")) {
-          extractedStrengths = sec.replace(/^2\.\s*/, '').replace(/^.*?(Skills|Strengths).*?[:\-]\s*/i, '').trim();
-          // Fallback if no colon was provided and it just started listing
+          extractedBreakdown = sec.replace(/^2\.\s*(Score Breakdown)?[:\-]?\s*/i, '').trim();
+        }
+        if (sec.startsWith("3.")) {
+          extractedStrengths = sec.replace(/^3\.\s*/, '').replace(/^.*?(Skills|Strengths).*?[:\-]\s*/i, '').trim();
           if (extractedStrengths.toLowerCase().startsWith('matched') || extractedStrengths.toLowerCase().startsWith('strengths')) {
               extractedStrengths = extractedStrengths.replace(/^(Matched Skills|Strengths)[\s\n]*/i, '');
           }
         }
-        if (sec.startsWith("3.")) {
-          extractedMissing = sec.replace(/^3\.\s*/, '').replace(/^.*?Missing.*?[:\-]\s*/i, '').trim();
+        if (sec.startsWith("4.")) {
+          extractedMissing = sec.replace(/^4\.\s*/, '').replace(/^.*?Missing.*?[:\-]\s*/i, '').trim();
           if (extractedMissing.toLowerCase().startsWith('missing')) {
               extractedMissing = extractedMissing.replace(/^Missing Skills[\s\n]*/i, '');
           }
         }
-        if (sec.startsWith("4.")) {
-          extractedImprovements = sec.replace(/^4\.\s*/, '').replace(/^.*?(Suggestions|Improvements).*?[:\-]\s*/i, '').trim();
+        if (sec.startsWith("5.")) {
+          extractedImprovements = sec.replace(/^5\.\s*/, '').replace(/^.*?(Suggestions|Improvements).*?[:\-]\s*/i, '').trim();
         }
       });
       
@@ -198,6 +202,7 @@ export default function Home() {
       }
 
       setSections({
+        breakdown: extractedBreakdown,
         strengths: extractedStrengths,
         missing: extractedMissing,
         improvements: extractedImprovements
@@ -529,6 +534,19 @@ export default function Home() {
                     </div>
                     <p className="mt-4 text-3xl font-semibold text-zinc-900 dark:text-zinc-100">{score}/100</p>
                   </div>
+
+                  {/* BREAKDOWN CARD */}
+                  {sections.breakdown && (
+                    <div className="bg-blue-500/5 dark:bg-blue-500/10 border border-blue-500/20 rounded-3xl p-6 flex items-start gap-4 animate-fadeIn">
+                      <div className="mt-1 bg-blue-500/20 p-2 rounded-xl">
+                        <CheckCircle2 size={20} className="text-blue-600 dark:text-blue-400" />
+                      </div>
+                      <div>
+                        <h4 className="text-sm font-bold text-blue-700 dark:text-blue-300 uppercase tracking-wider mb-1">Calculation Breakdown</h4>
+                        <p className="text-zinc-700 dark:text-zinc-300 text-sm leading-relaxed">{sections.breakdown}</p>
+                      </div>
+                    </div>
+                  )}
 
                   {/* STRENGTHS */}
                   <div className="bg-white dark:bg-zinc-900 border border-zinc-200/50 dark:border-zinc-800/50 rounded-3xl p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.1)] relative overflow-hidden">
