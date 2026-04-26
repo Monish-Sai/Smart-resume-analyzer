@@ -10,28 +10,30 @@ export async function POST(req: Request) {
 
     const trimmedText = text.length > 10000 ? text.substring(0, 10000) : text;
     
-    const prompt = `You are an elite, senior-level Recruitment Engineer and ATS Logic Engine. 
-Your goal is to provide a hyper-realistic, data-driven analysis of the provided resume for the role of ${role}.
+    const prompt = `You are a high-level Technical Hiring Manager and Senior Recruiter. 
+Your task is to conduct a forensic, data-driven analysis of this resume for the position of ${role}.
 
-${jobDescription ? `### Target Job Description:\n"${jobDescription}"\n` : ''}
+${jobDescription ? `### Target Job Description Requirements:\n"${jobDescription}"\n` : ''}
 
-### Scoring Rubric (Strictly follow this to calculate the final score):
-1. **Technical Hard Skills (50%)**: Match exactly against required keywords. Do not give credit for "similar" skills unless they are industry-standard synonyms.
-2. **Relevant Experience (30%)**: Analyze years of experience and seniority level. Is it a match for a ${role}?
-3. **Education & Structural Clarity (20%)**: Does the resume follow a professional hierarchy? Is it parsable?
+### Step-by-Step Scoring Protocol (Mental Calculation):
+1. **Initial Score: 0**
+2. **Technical Skills (Max 50 pts)**: Award points for every direct technical match. Deduct 5 points for every "critical" missing skill.
+3. **Professional Experience (Max 30 pts)**: Analyze relevance and seniority. Award points based on tenure and impact.
+4. **Formatting & Keywords (20 pts)**: Award points for clear hierarchy and parsable keywords.
 
-### Critical Instructions:
-- **Avoid "Safe" Rounding**: Do NOT provide scores ending in 0 or 5 (e.g., avoid 60, 65, 70). Provide precise, granular scores based on evidence (e.g., 63, 72, 58, 81).
-- **Ruthless Honesty**: If the resume is a poor match, score it below 40. If it is perfect, score it above 90.
-- **Data-Driven**: Every point in the score must be justifiable by the content.
+### Final Scoring Rules:
+- **Zero Generic Scores**: Do NOT use numbers ending in 0 or 5. 
+- **Unique Variance**: Each resume must have a unique score based on its specific contents. 
+- **Verification**: Ensure the 'Matched Skills' list ONLY contains words actually present in the text.
 
-### Response Format (Strictly follow):
-1. ${jobDescription ? 'Match Percentage' : 'ATS Score'}: [Provide exact granular score 0-100]
-2. ${jobDescription ? 'Matched Skills' : 'Strengths'}: [A single comma-separated list of ONLY verified technical keywords found in the text]
-3. Missing Skills: [A single comma-separated list of skills missing that are vital for a ${role}]
-4. Suggestions: [3-4 actionable, high-impact bullet points for improvement]
+### Output Format (Strictly Provide ONLY this):
+[Reasoning: A 1-sentence internal summary of the calculation logic]
+1. ${jobDescription ? 'Match Percentage' : 'ATS Score'}: [Provide exact granular score e.g. 64, 71, 42, 88]
+2. ${jobDescription ? 'Matched Skills' : 'Strengths'}: [Comma-separated list of keywords found in resume]
+3. Missing Skills: [Comma-separated list of missing vital keywords]
+4. Suggestions: [3-4 high-impact bullet points]
 
-Resume Content:
+Resume Data:
 ${trimmedText}`;
 
     const controller = new AbortController();
@@ -47,11 +49,11 @@ ${trimmedText}`;
     const response = await fetch("https://router.huggingface.co/v1/chat/completions", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${apiKey}`, // 🔁 securely loaded from env
+        Authorization: `Bearer ${apiKey}`,
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        model: "Qwen/Qwen2.5-7B-Instruct",
+        model: "meta-llama/Llama-3.1-8B-Instruct",
         messages: [{ role: "user", content: prompt }],
         max_tokens: 1000
       }),
