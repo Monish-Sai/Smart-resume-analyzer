@@ -36,7 +36,7 @@ Resume Data:
 ${trimmedText}`;
 
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 45000); // Increased timeout for 70B
+    const timeoutId = setTimeout(() => controller.abort(), 45000);
 
     const apiKey = process.env.HUGGINGFACE_API_KEY;
 
@@ -52,7 +52,7 @@ ${trimmedText}`;
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        model: "meta-llama/Meta-Llama-3.1-70B-Instruct",
+        model: "meta-llama/Llama-3.1-8B-Instruct",
         messages: [{ role: "user", content: prompt }],
         max_tokens: 1000,
         temperature: 0.1
@@ -67,6 +67,41 @@ ${trimmedText}`;
     let output = "No response";
     if (data.choices && data.choices.length > 0) {
       output = data.choices[0].message.content;
+
+      // 🔥 Robust Regex-based Section Extraction
+      const extractSection = (content: string, regexLabel: string, nextLabels: string[]) => {
+        // nextLabels are used as lookaheads to stop capturing
+        const lookahead = nextLabels.length > 0 
+          ? `(?=\\n\\d?\\.?\\s*(?:${nextLabels.join('|')})|$)` 
+          : '(?=$)';
+        const pattern = new RegExp(`(?:${regexLabel})[:\\-]?\\s*([\\s\\S]*?)${lookahead}`, 'i');
+        const match = content.match(pattern);
+        return match ? match[1].trim().replace(/^\d\.\s*/, '') : "";
+      };
+
+      const extractedBreakdown = extractSection(output, "Score Breakdown", ["Matched Skills", "Strengths", "Missing", "Suggestions"]);
+      const extractedStrengths = extractSection(output, "Matched Skills|Strengths", ["Missing Skills?", "Suggestions?"]);
+      const extractedMissing = extractSection(output, "Missing Skills?", ["Suggestions?"]);
+      const extractedImprovements = extractSection(output, "Suggestions?", []);
+      
+      // Server-side score extraction
+      let parsedScore = 0;
+      const scoreMatch = output.match(/(?:ATS Score|Match Percentage).*?(\d{1,3})/i) || output.match(/Score:.*?(\d{1,3})/i);
+      if (scoreMatch && scoreMatch[1]) {
+        parsedScore = parseInt(scoreMatch[1], 10);
+      }
+      
+      return NextResponse.json({ 
+        result: output,
+        structured: {
+          score: parsedScore > 100 ? 100 : parsedScore,
+          breakdown: extractedBreakdown,
+          strengths: extractedStrengths,
+          missing: extractedMissing,
+          suggestions: extractedImprovements
+        }
+      });
+
     } else if (data.error) {
       output = data.error.message || data.error;
     }

@@ -149,64 +149,39 @@ export default function Home() {
       const output = data.result;
       setResult(output);
 
-      // 🔥 Extract ATS Score Safely
-      let parsedScore = 0;
-      const atsLine = output.split('\n').find((line: string) => line.toLowerCase().includes('score') || line.toLowerCase().includes('percentage'));
-      if (atsLine) {
-        const nums = atsLine.match(/\d+/g);
-        if (nums) {
-          const validScores = nums.map((n: string) => parseInt(n, 10)).filter((n: number) => n >= 0 && n <= 100 && n !== 1);
-          if (validScores.length > 0) {
-            parsedScore = validScores[0];
-          } else {
-             parsedScore = parseInt(nums[0], 10);
-          }
-        }
-      }
-      setScore(parsedScore > 100 ? 100 : parsedScore);
+      let finalScore = 0;
+      let finalBreakdown = "";
+      let finalStrengths = "";
+      let finalMissing = "";
+      let finalImprovements = "";
 
-      // 🔥 Extract sections using dynamic Regex bindings guarding against prompt variations
-      let extractedBreakdown = "";
-      let extractedStrengths = "";
-      let extractedMissing = "";
-      let extractedImprovements = "";
-      
-      const sectionsList = output.split(/(?=\d\.\s)/); 
-      
-      sectionsList.forEach((sec: string) => {
-        if (sec.startsWith("2.")) {
-          extractedBreakdown = sec.replace(/^2\.\s*(Score Breakdown)?[:\-]?\s*/i, '').trim();
-        }
-        if (sec.startsWith("3.")) {
-          extractedStrengths = sec.replace(/^3\.\s*/, '').replace(/^.*?(Skills|Strengths).*?[:\-]\s*/i, '').trim();
-          if (extractedStrengths.toLowerCase().startsWith('matched') || extractedStrengths.toLowerCase().startsWith('strengths')) {
-              extractedStrengths = extractedStrengths.replace(/^(Matched Skills|Strengths)[\s\n]*/i, '');
-          }
-        }
-        if (sec.startsWith("4.")) {
-          extractedMissing = sec.replace(/^4\.\s*/, '').replace(/^.*?Missing.*?[:\-]\s*/i, '').trim();
-          if (extractedMissing.toLowerCase().startsWith('missing')) {
-              extractedMissing = extractedMissing.replace(/^Missing Skills[\s\n]*/i, '');
-          }
-        }
-        if (sec.startsWith("5.")) {
-          extractedImprovements = sec.replace(/^5\.\s*/, '').replace(/^.*?(Suggestions|Improvements).*?[:\-]\s*/i, '').trim();
-        }
-      });
-      
-      // Fallback Legacy Splitter
-      if (!extractedStrengths && !extractedMissing && !extractedImprovements) {
-          extractedStrengths = output.split(/Strengths:?/i)[1]?.split(/Missing/i)[0]?.trim() || "";
-          extractedMissing = output.split(/Missing.*?:?/i)[1]?.split(/Improvement|Suggestion/i)[0]?.trim() || "";
-          extractedImprovements = output.split(/Improvement.*?:?|Suggestion.*?:?/i)[1]?.trim() || "";
+      // 🔥 Server-Side Parsing (Robust)
+      if (data.structured) {
+        finalScore = data.structured.score || 0;
+        finalBreakdown = data.structured.breakdown || "";
+        finalStrengths = data.structured.strengths || "";
+        finalMissing = data.structured.missing || "";
+        finalImprovements = data.structured.suggestions || "";
+      } else {
+        console.error("Structured data missing. Raw output:", output);
+        // Legacy Client-Side Parser
+        const sectionsList = output.split(/(?=\d\.\s)/); 
+        sectionsList.forEach((sec: string) => {
+          if (sec.startsWith("2.")) finalBreakdown = sec.replace(/^2\.\s*(Score Breakdown)?[:\-]?\s*/i, '').trim();
+          if (sec.startsWith("3.")) finalStrengths = sec.replace(/^3\.\s*(Matched Skills|Strengths)?[:\-]?\s*/i, '').trim();
+          if (sec.startsWith("4.")) finalMissing = sec.replace(/^4\.\s*(Missing Skills)?[:\-]?\s*/i, '').trim();
+          if (sec.startsWith("5.")) finalImprovements = sec.replace(/^5\.\s*(Suggestions)?[:\-]?\s*/i, '').trim();
+        });
       }
 
+      setScore(finalScore);
       setSections({
-        breakdown: extractedBreakdown,
-        strengths: extractedStrengths,
-        missing: extractedMissing,
-        improvements: extractedImprovements
+        breakdown: finalBreakdown,
+        strengths: finalStrengths,
+        missing: finalMissing,
+        improvements: finalImprovements
       });
+
 
       // 🔥 Broadcast to Supabase Cloud Cluster
       if (userId) {
@@ -215,10 +190,10 @@ export default function Home() {
           .insert([{
             user_id: userId,
             role: role,
-            score: parsedScore,
-            strengths: extractedStrengths,
-            missing: extractedMissing,
-            improvements: extractedImprovements
+            score: finalScore,
+            strengths: finalStrengths,
+            missing: finalMissing,
+            improvements: finalImprovements
           }]);
 
         if (uploadError) {
@@ -242,8 +217,9 @@ export default function Home() {
            
            doc.setFontSize(16);
            doc.setFont("helvetica", "bold");
-           doc.setTextColor(parsedScore >= 75 ? "#10b981" : parsedScore >= 50 ? "#f59e0b" : "#ef4444");
-           doc.text(`Overall Score: ${parsedScore}/100`, 140, 30);
+           doc.setTextColor(finalScore >= 75 ? "#10b981" : finalScore >= 50 ? "#f59e0b" : "#ef4444");
+           doc.text(`Overall Score: ${finalScore}/100`, 140, 30);
+
            
            doc.setDrawColor(200, 200, 200);
            doc.line(20, 45, 190, 45);
