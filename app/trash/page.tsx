@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { useAuth } from "@clerk/nextjs";
-import { supabase } from "../../utils/supabaseClient";
+import { useAuth, useSession } from "@clerk/nextjs";
+import { supabase, createClerkSupabaseClient } from "../../utils/supabaseClient";
 
 type HistoryItem = {
   id?: string;
@@ -21,6 +21,7 @@ type HistoryItem = {
 
 export default function TrashPage() {
   const { isSignedIn, isLoaded, userId } = useAuth();
+  const { session } = useSession();
   
   const [deletedHistory, setDeletedHistory] = useState<HistoryItem[]>([]);
   const [expandedItem, setExpandedItem] = useState<number | null>(null);
@@ -28,8 +29,10 @@ export default function TrashPage() {
   // Fetch true history from the Supabase Cloud
   useEffect(() => {
     async function loadDeletedData() {
-      if (userId) {
-        const { data } = await supabase
+      if (userId && session) {
+        const token = await session.getToken({ template: 'supabase' });
+        const supabaseAuth = token ? createClerkSupabaseClient(token) : supabase;
+        const { data } = await supabaseAuth
           .from('resume_history_deleted')
           .select('*')
           .eq('user_id', userId)
@@ -39,7 +42,7 @@ export default function TrashPage() {
       }
     }
     loadDeletedData();
-  }, [userId]);
+  }, [userId, session]);
 
   // Restore item from Cloud Trash to Cloud Active
   const handleRestoreHistory = async (indexToRestore: number, e: React.MouseEvent) => {
@@ -53,8 +56,11 @@ export default function TrashPage() {
     setExpandedItem(null);
 
     // DB Transfer
-    if (itemToRestore.id) {
-       await supabase.from('resume_history').insert([{
+    if (itemToRestore.id && session) {
+       const token = await session.getToken({ template: 'supabase' });
+       const supabaseAuth = token ? createClerkSupabaseClient(token) : supabase;
+
+       await supabaseAuth.from('resume_history').insert([{
            user_id: userId,
            role: itemToRestore.role,
            score: itemToRestore.score,
@@ -64,7 +70,7 @@ export default function TrashPage() {
            custom_title: itemToRestore.custom_title
        }]);
 
-       await supabase.from('resume_history_deleted').delete().eq('id', itemToRestore.id);
+       await supabaseAuth.from('resume_history_deleted').delete().eq('id', itemToRestore.id);
     }
   };
 
@@ -81,8 +87,10 @@ export default function TrashPage() {
     setDeletedHistory(newDeletedHistory);
     setExpandedItem(null);
 
-    if (itemToDelete.id) {
-       await supabase.from('resume_history_deleted').delete().eq('id', itemToDelete.id);
+    if (itemToDelete.id && session) {
+       const token = await session.getToken({ template: 'supabase' });
+       const supabaseAuth = token ? createClerkSupabaseClient(token) : supabase;
+       await supabaseAuth.from('resume_history_deleted').delete().eq('id', itemToDelete.id);
     }
   };
 
