@@ -2,10 +2,10 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { useAuth } from "@clerk/nextjs";
+import { useAuth, useSession } from "@clerk/nextjs";
 import { jsPDF } from "jspdf";
 import { motion, AnimatePresence } from "framer-motion";
-import { supabase } from "../../utils/supabaseClient";
+import { supabase, createClerkSupabaseClient } from "../../utils/supabaseClient";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 
 // Define the shape of our history
@@ -24,6 +24,7 @@ type HistoryItem = {
 
 export default function DashboardPage() {
   const { isSignedIn, isLoaded, userId } = useAuth();
+  const { session } = useSession();
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [expandedItem, setExpandedItem] = useState<number | null>(null);
   const [editingItemId, setEditingItemId] = useState<string | null>(null);
@@ -32,8 +33,10 @@ export default function DashboardPage() {
   // Fetch true history from the Supabase Cloud
   useEffect(() => {
     async function loadData() {
-      if (userId) {
-        const { data } = await supabase
+      if (userId && session) {
+        const token = await session.getToken({ template: 'supabase' });
+        const supabaseAuth = token ? createClerkSupabaseClient(token) : supabase;
+        const { data } = await supabaseAuth
           .from('resume_history')
           .select('*')
           .eq('user_id', userId)
@@ -44,7 +47,7 @@ export default function DashboardPage() {
       }
     }
     loadData();
-  }, [userId]);
+  }, [userId, session]);
 
   // Favorite Interaction
   const handleToggleFavorite = async (indexToToggle: number, e: React.MouseEvent) => {
@@ -68,8 +71,10 @@ export default function DashboardPage() {
     setHistory(updatedHistory);
     setExpandedItem(null); // Reset layout to prevent UI bounds glitching
 
-    if (item.id) {
-       await supabase.from('resume_history').update({ is_favorite: newFavoriteState }).eq('id', item.id);
+    if (item.id && session) {
+       const token = await session.getToken({ template: 'supabase' });
+       const supabaseAuth = token ? createClerkSupabaseClient(token) : supabase;
+       await supabaseAuth.from('resume_history').update({ is_favorite: newFavoriteState }).eq('id', item.id);
     }
   };
 
@@ -88,7 +93,11 @@ export default function DashboardPage() {
     setHistory(updatedHistory);
     setEditingItemId(null); // Close Editor
 
-    await supabase.from('resume_history').update({ custom_title: editTitleInput.trim() }).eq('id', item.id);
+    if (session) {
+      const token = await session.getToken({ template: 'supabase' });
+      const supabaseAuth = token ? createClerkSupabaseClient(token) : supabase;
+      await supabaseAuth.from('resume_history').update({ custom_title: editTitleInput.trim() }).eq('id', item.id);
+    }
   };
 
   // Handle Cloud data deletion safely (Soft Delete)
@@ -110,8 +119,11 @@ export default function DashboardPage() {
     }
 
     // Cloud Re-Routing
-    if (itemToDelete.id) {
-       const { error: insertError } = await supabase.from('resume_history_deleted').insert([{
+    if (itemToDelete.id && session) {
+       const token = await session.getToken({ template: 'supabase' });
+       const supabaseAuth = token ? createClerkSupabaseClient(token) : supabase;
+
+       const { error: insertError } = await supabaseAuth.from('resume_history_deleted').insert([{
            original_id: itemToDelete.id,
            user_id: userId,
            role: itemToDelete.role,
@@ -125,7 +137,7 @@ export default function DashboardPage() {
        if (insertError) {
          console.error("Failed to map to trash bin:", insertError);
        } else {
-         await supabase.from('resume_history').delete().eq('id', itemToDelete.id);
+         await supabaseAuth.from('resume_history').delete().eq('id', itemToDelete.id);
        }
     }
   };
