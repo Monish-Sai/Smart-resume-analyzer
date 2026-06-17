@@ -61,3 +61,35 @@ body {
 .animate-fadeIn {
   animation: fadeIn 0.6s ease-out forwards;
 }
+
+@media print {
+  @page {
+    size: A4;
+    margin: 0mm !important; /* Remove headers/footers */
+  }
+
+  body {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* Target the resume template directly */
+  #resume-preview-container > div,
+  #builder-resume-preview-container > div {
+    width: 210mm !important;
+    height: 297mm !important; /* Force A4 height */
+    max-width: none !important;
+    min-height: none !important;
+    margin: 0 !important;
+    box-shadow: none !important;
+    page-break-after: avoid !important;
+    page-break-before: avoid !important;
+  }
+
+  /* Allow containers to expand fully without scrolling */
+  .overflow-y-auto {
+    overflow: visible !important;
+  }
+}

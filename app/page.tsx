@@ -12,6 +12,7 @@ import { toast } from "sonner";
 export default function Home() {
   const { isSignedIn, userId } = useAuth();
   const { session } = useSession();
+  const [isMounted, setIsMounted] = useState(false);
   const [result, setResult] = useState("");
   const [role, setRole] = useState("");
   const [file, setFile] = useState<File | null>(null);
@@ -29,6 +30,7 @@ export default function Home() {
 
   // Pull settings from local simulation
   useEffect(() => {
+    setIsMounted(true);
     if (userId) {
       const savedRole = localStorage.getItem(`default_role_${userId}`);
       if (savedRole) setRole(savedRole);
@@ -252,6 +254,8 @@ export default function Home() {
 
     setLoading(false);
   };
+
+  if (!isMounted) return null;
 
   return (
     <div className="min-h-screen bg-white dark:bg-[#09090b] text-zinc-900 dark:text-zinc-100 flex flex-col items-center px-4 md:px-6 py-8 md:py-10 w-full relative animate-fadeIn transition-colors duration-300">

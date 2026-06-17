@@ -5,25 +5,33 @@ import Link from "next/link";
 import { useAuth, useSession } from "@clerk/nextjs";
 import { supabase, createClerkSupabaseClient } from "../../utils/supabaseClient";
 
-type HistoryItem = {
+type TrashItem = {
   id?: string;
   original_id?: string;
-  role: string;
-  score: number;
-  date?: string;
-  original_created_at?: string;
+  type: 'analyzer' | 'generated';
   deleted_at?: string;
+  original_created_at?: string;
   strengths?: string;
   missing?: string;
   improvements?: string;
+
+  // analyzer fields
+  role?: string;
+  score?: number;
   custom_title?: string;
+  
+  // generated fields
+  resume_name?: string;
+  ats_score?: number;
+  resume_data?: any;
+  template_id?: string;
 };
 
 export default function TrashPage() {
   const { isSignedIn, isLoaded, userId } = useAuth();
   const { session } = useSession();
   
-  const [deletedHistory, setDeletedHistory] = useState<HistoryItem[]>([]);
+  const [deletedHistory, setDeletedHistory] = useState<TrashItem[]>([]);
   const [expandedItem, setExpandedItem] = useState<number | null>(null);
 
   // Fetch true history from the Supabase Cloud
@@ -32,13 +40,37 @@ export default function TrashPage() {
       if (userId && session) {
         const token = await session.getToken({ template: 'supabase' });
         const supabaseAuth = token ? createClerkSupabaseClient(token) : supabase;
-        const { data } = await supabaseAuth
+        
+        // Fetch Analyzer Trash
+        const { data: analyzerData } = await supabaseAuth
           .from('resume_history_deleted')
           .select('*')
-          .eq('user_id', userId)
-          .order('deleted_at', { ascending: false });
+          .eq('user_id', userId);
+          
+        // Fetch Generated Trash
+        const { data: generatedData } = await supabaseAuth
+          .from('generated_resumes_deleted')
+          .select('*')
+          .eq('user_id', userId);
+          
+        const combinedData: TrashItem[] = [];
         
-        if (data) setDeletedHistory(data);
+        if (analyzerData) {
+          analyzerData.forEach(item => combinedData.push({ ...item, type: 'analyzer' }));
+        }
+        
+        if (generatedData) {
+          generatedData.forEach(item => combinedData.push({ ...item, type: 'generated' }));
+        }
+        
+        // Sort by deleted_at descending
+        combinedData.sort((a, b) => {
+          const dateA = new Date(a.deleted_at || a.original_created_at || 0).getTime();
+          const dateB = new Date(b.deleted_at || b.original_created_at || 0).getTime();
+          return dateB - dateA;
+        });
+        
+        setDeletedHistory(combinedData);
       }
     }
     loadDeletedData();
@@ -60,17 +92,30 @@ export default function TrashPage() {
        const token = await session.getToken({ template: 'supabase' });
        const supabaseAuth = token ? createClerkSupabaseClient(token) : supabase;
 
-       await supabaseAuth.from('resume_history').insert([{
-           user_id: userId,
-           role: itemToRestore.role,
-           score: itemToRestore.score,
-           strengths: itemToRestore.strengths,
-           missing: itemToRestore.missing,
-           improvements: itemToRestore.improvements,
-           custom_title: itemToRestore.custom_title
-       }]);
-
-       await supabaseAuth.from('resume_history_deleted').delete().eq('id', itemToRestore.id);
+       if (itemToRestore.type === 'analyzer') {
+         await supabaseAuth.from('resume_history').insert([{
+             user_id: userId,
+             role: itemToRestore.role,
+             score: itemToRestore.score,
+             strengths: itemToRestore.strengths,
+             missing: itemToRestore.missing,
+             improvements: itemToRestore.improvements,
+             custom_title: itemToRestore.custom_title
+         }]);
+         await supabaseAuth.from('resume_history_deleted').delete().eq('id', itemToRestore.id);
+       } else {
+         await supabaseAuth.from('generated_resumes').insert([{
+             user_id: userId,
+             resume_name: itemToRestore.resume_name,
+             resume_data: itemToRestore.resume_data,
+             template_id: itemToRestore.template_id,
+             ats_score: itemToRestore.ats_score,
+             strengths: itemToRestore.strengths,
+             missing: itemToRestore.missing,
+             improvements: itemToRestore.improvements
+         }]);
+         await supabaseAuth.from('generated_resumes_deleted').delete().eq('id', itemToRestore.id);
+       }
     }
   };
 
@@ -78,7 +123,7 @@ export default function TrashPage() {
   const handleHardDelete = async (indexToDelete: number, e: React.MouseEvent) => {
     e.stopPropagation();
     
-    if (!window.confirm("Are you sure you want to permanently delete this analysis? This cannot be undone.")) {
+    if (!window.confirm("Are you sure you want to permanently delete this file? This cannot be undone.")) {
       return; 
     }
     
@@ -90,7 +135,12 @@ export default function TrashPage() {
     if (itemToDelete.id && session) {
        const token = await session.getToken({ template: 'supabase' });
        const supabaseAuth = token ? createClerkSupabaseClient(token) : supabase;
-       await supabaseAuth.from('resume_history_deleted').delete().eq('id', itemToDelete.id);
+       
+       if (itemToDelete.type === 'analyzer') {
+         await supabaseAuth.from('resume_history_deleted').delete().eq('id', itemToDelete.id);
+       } else {
+         await supabaseAuth.from('generated_resumes_deleted').delete().eq('id', itemToDelete.id);
+       }
     }
   };
 
@@ -148,7 +198,7 @@ export default function TrashPage() {
                 >
                   <div className="flex justify-between items-center w-full">
                     <div className="flex items-center gap-3">
-                      <span className="font-medium text-slate-800 dark:text-gray-300 group-hover:text-black dark:group-hover:text-white transition line-through decoration-red-500/80 dark:decoration-red-500/50">{item.custom_title || item.role}</span>
+                      <span className="font-medium text-slate-800 dark:text-gray-300 group-hover:text-black dark:group-hover:text-white transition line-through decoration-red-500/80 dark:decoration-red-500/50">{item.custom_title || item.role || item.resume_name}</span>
                       <span className="text-xs text-slate-600 dark:text-gray-500 bg-slate-200 dark:bg-black/40 px-2 py-1 rounded-md border border-slate-300 dark:border-white/5 transition-colors duration-300">
                         {new Date(item.deleted_at || item.original_created_at || item.date || "").toLocaleDateString()}
                       </span>
@@ -172,7 +222,7 @@ export default function TrashPage() {
                          </button>
                       </div>
 
-                      <span className="text-blue-600 dark:text-blue-400 font-bold px-3 py-1 bg-slate-200 dark:bg-black/40 border border-slate-300 dark:border-white/5 rounded-lg text-sm grayscale opacity-70 transition-colors duration-300">{item.score}/100</span>
+                      <span className="text-blue-600 dark:text-blue-400 font-bold px-3 py-1 bg-slate-200 dark:bg-black/40 border border-slate-300 dark:border-white/5 rounded-lg text-sm grayscale opacity-70 transition-colors duration-300">{item.score || item.ats_score}/100</span>
                       <span className={`text-slate-500 dark:text-gray-500 transform transition-transform duration-300 ${expandedItem === index ? 'rotate-180' : ''}`}>
                         ▼
                       </span>
