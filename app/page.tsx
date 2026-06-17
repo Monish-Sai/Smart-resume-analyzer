@@ -81,7 +81,10 @@ export default function Home() {
         pdfjsLib.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.mjs`;
 
         const typedArray = new Uint8Array(arrayBuffer);
-        const pdf = await pdfjsLib.getDocument({ data: typedArray }).promise;
+        const pdf = await pdfjsLib.getDocument({ 
+          data: typedArray,
+          standardFontDataUrl: `//unpkg.com/pdfjs-dist@${pdfjsLib.version}/standard_fonts/`,
+        }).promise;
         let fullText = "";
 
         for (let i = 1; i <= pdf.numPages; i++) {

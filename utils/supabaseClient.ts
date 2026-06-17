@@ -25,7 +25,7 @@ export const createClerkSupabaseClient = (clerkToken: string) => {
       persistSession: false,
       autoRefreshToken: false,
       detectSessionInUrl: false,
-      storageKey: 'supabase-clerk-key',
+      storageKey: 'supabase-clerk-key-' + Math.random(),
     },
     global: {
       headers: {
