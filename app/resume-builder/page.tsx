@@ -398,6 +398,7 @@ export default function ResumeBuilderPage() {
   const [generatedResume, setGeneratedResume] = useState<any | null>(null);
   const [selectedTemplate, setSelectedTemplate] = useState<'modern_sidebar' | 'graduate' | 'executive' | 'executive_classic' | 'developer'>('modern_sidebar');
   const [generateAISummary, setGenerateAISummary] = useState(true);
+  const [aiError, setAiError] = useState<string | null>(null);
   const [dateError, setDateError] = useState("");
   const [formData, setFormData] = useState({
     summary: "",
@@ -498,21 +499,23 @@ export default function ResumeBuilderPage() {
           newProjects[index] = { ...newProjects[index], description: data.description, isGenerating: false };
           return { ...prev, projects: newProjects };
         });
+        setAiError(null);
       } else {
         setFormData(prev => {
           const newProjects = [...prev.projects];
-          newProjects[index] = { ...newProjects[index], isGenerating: false };
+          newProjects[index] = { ...newProjects[index], generateAIDescription: false, isGenerating: false };
           return { ...prev, projects: newProjects };
         });
-        alert(data.message || "Failed to generate description.");
+        setAiError("⚠ AI generation is temporarily experiencing issues. Please manually enter your project description.");
       }
     } catch (error) {
       console.error(error);
       setFormData(prev => {
         const newProjects = [...prev.projects];
-        newProjects[index] = { ...newProjects[index], isGenerating: false };
+        newProjects[index] = { ...newProjects[index], generateAIDescription: false, isGenerating: false };
         return { ...prev, projects: newProjects };
       });
+      setAiError("⚠ AI services are currently unavailable. You can continue manually and try again later.");
     }
   };
 
@@ -733,6 +736,13 @@ export default function ResumeBuilderPage() {
                     <p className="text-sm text-slate-500 dark:text-gray-500 transition-colors duration-300">Summarize your professional background and goals.</p>
                   </div>
                   
+                  {aiError && (
+                    <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/30 rounded-xl text-red-600 dark:text-red-400 text-sm font-medium animate-fadeIn flex items-start gap-3">
+                      <span className="text-lg">⚠</span>
+                      <p>{aiError}</p>
+                    </div>
+                  )}
+
                   <div className="flex flex-col flex-1 gap-4">
                     <div className="flex items-center gap-2 mb-2">
                       <input 
@@ -1294,6 +1304,13 @@ export default function ResumeBuilderPage() {
                             body: JSON.stringify({ ...formData, generateAISummary })
                           });
                           const data = await res.json();
+                          if (!data.success) {
+                            setAiError("⚠ AI services are currently unavailable. Please write your summary manually and try again.");
+                            setGenerateAISummary(false);
+                            setIsGenerating(false);
+                            return; // Stop execution, reveal manual textareas
+                          }
+                          setAiError(null);
                           const finalResume = data.resumeData;
                           
                           setGenerationStatus("Analyzing ATS Score 📊...");
@@ -1329,7 +1346,8 @@ export default function ResumeBuilderPage() {
                           setGeneratedResume(finalResume);
                         } catch (e) {
                           console.error("Error generating resume:", e);
-                          alert("Failed to generate resume.");
+                          setAiError("⚠ AI services are currently unavailable. Please enter details manually.");
+                          setGenerateAISummary(false);
                         } finally {
                           setIsGenerating(false);
                           setGenerationStatus("Generating Resume ✨...");

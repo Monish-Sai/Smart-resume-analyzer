@@ -47,6 +47,7 @@ export default function DashboardPage() {
   const [editingGenItemId, setEditingGenItemId] = useState<string | null>(null);
   const [editGenTitleInput, setEditGenTitleInput] = useState<string>("");
   const [improvingId, setImprovingId] = useState<string | null>(null);
+  const [dashboardError, setDashboardError] = useState<string | null>(null);
 
   // Fetch true history from the Supabase Cloud
   useEffect(() => {
@@ -149,14 +150,14 @@ export default function DashboardPage() {
           alert("Resume successfully improved and score updated!");
         } else {
           console.error("Supabase update error:", error);
-          alert("Failed to save improved resume to database.");
+          setDashboardError("Failed to save improved resume to database.");
         }
       } else if (!data.success) {
-        alert(data.message || "Failed to improve resume.");
+        setDashboardError("⚠ AI services are currently unavailable. You can try again later.");
       }
     } catch (e) {
       console.error("Error improving resume:", e);
-      alert("An unexpected error occurred while improving the resume.");
+      setDashboardError("⚠ AI services are currently unavailable. You can try again later.");
     } finally {
       setImprovingId(null);
     }
@@ -523,6 +524,14 @@ export default function DashboardPage() {
             </h3>
           </div>
 
+          {dashboardError && (
+            <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/30 rounded-xl text-red-600 dark:text-red-400 text-sm font-medium animate-fadeIn flex items-start gap-3">
+              <span className="text-lg">⚠</span>
+              <p>{dashboardError}</p>
+              <button onClick={() => setDashboardError(null)} className="ml-auto text-red-500 hover:text-red-700 font-bold px-2 py-0.5 rounded">×</button>
+            </div>
+          )}
+
           <div className="space-y-4">
             {history.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-10 text-center animate-fadeIn">
@@ -685,9 +694,17 @@ export default function DashboardPage() {
             
             <div className="flex justify-between items-center mb-8 pb-4 border-b border-zinc-100 dark:border-zinc-800 transition-colors duration-300">
               <h3 className="font-semibold text-xl text-zinc-900 dark:text-zinc-100 tracking-tight">
-                My AI Generated Resumes
+                AI Generated Resumes
               </h3>
             </div>
+
+            {dashboardError && (
+              <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/30 rounded-xl text-red-600 dark:text-red-400 text-sm font-medium animate-fadeIn flex items-start gap-3">
+                <span className="text-lg">⚠</span>
+                <p>{dashboardError}</p>
+                <button onClick={() => setDashboardError(null)} className="ml-auto text-red-500 hover:text-red-700 font-bold px-2 py-0.5 rounded">×</button>
+              </div>
+            )}
 
             <div className="space-y-4">
               {generatedResumes.length === 0 ? (
