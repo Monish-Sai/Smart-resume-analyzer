@@ -11,6 +11,7 @@ type TrashItem = {
   type: 'analyzer' | 'generated';
   deleted_at?: string;
   original_created_at?: string;
+  date?: string;
   strengths?: string;
   missing?: string;
   improvements?: string;
