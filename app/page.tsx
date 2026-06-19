@@ -338,7 +338,7 @@ export default function Home() {
           {/* Header Section */}
           <div className="text-center w-full mb-10 space-y-4 transition-colors duration-300">
             <h1 className="text-4xl font-semibold bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 dark:from-blue-400 dark:via-purple-400 dark:to-pink-500 bg-clip-text text-transparent">
-              Smart Resume Analyzer
+              ResumeCraft
             </h1>
             <div className="text-slate-500 dark:text-gray-400 text-sm transition-colors duration-300">
               Upload your resume and get instant AI feedback on:
